@@ -1,0 +1,8 @@
+[user]
+	name = Colton Ward
+	email = colton1ward@gmail.com
+	signingkey = 5085BFDD
+[init]
+	defaultBranch = main
+[gpg]
+	program = gpg
