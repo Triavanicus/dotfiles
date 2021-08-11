@@ -133,4 +133,4 @@ fi
 source "$HOME/.cargo/env"
 
 eval "$(rbenv init -)"
-alias dotfiles='/usr/bin/git --git-dir=/home/triav/.dotfiles/--work-tree=/home/triav'
+alias dotfiles='/usr/bin/git --git-dir=/home/triav/.dotfiles/ --work-tree=/home/triav'

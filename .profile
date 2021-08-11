@@ -27,3 +27,4 @@ if [ $? -eq 0 ]; then
 #else
   # Not in WSL
 fi
+export GPG_TTY=$(tty)
