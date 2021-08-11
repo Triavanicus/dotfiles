@@ -134,3 +134,5 @@ source "$HOME/.cargo/env"
 
 eval "$(rbenv init -)"
 alias dotfiles='/usr/bin/git --git-dir=/home/triav/.dotfiles/ --work-tree=/home/triav'
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
