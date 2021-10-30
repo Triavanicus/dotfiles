@@ -40,6 +40,7 @@ Plug 'morhetz/gruvbox'
 call plug#end()
 
 let mapleader = ";"
+command! Sw :execute ':silent w !sudo tee % >/dev/null' | :edit!
 
 syntax on
 colorscheme gruvbox
@@ -70,6 +71,17 @@ set colorcolumn=81
 set tabstop=4 softtabstop=4 shiftwidth=4 expandtab smarttab autoindent
 set incsearch
 set termguicolors
+set clipboard=unnamed
+
+" Language: Markdown
+nmap <leader>mpt <Plug>MarkdownPreviewToggle
+nmap <leader>mps <Plug>MarkdownPreview
+nmap <leader>mpq <Plug>MarkdownPreviewStop
+augroup Markdown
+    autocmd!
+    autocmd FileType markdown set wrap
+    autocmd FileType markdown set linebreak
+augroup END
 
 " FZF
 nnoremap <silent> <leader>b :Buffers<cr>
@@ -82,6 +94,7 @@ set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 
 let g:diagnostic_enable_virtual_text=0
 
+" Language: Ruby
 autocmd FileType ruby setlocal tabstop=2 softtabstop=2 shiftwidth=2
 autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
 let g:rubycomplete_buffer_loading=1
@@ -96,7 +109,13 @@ if executable('solargraph')
             \ })
 endif
 
-map <leader>rs :source ~/.config/nvim/init.vim<CR>
+map <leader>ce :edit ~/.config/nvim/init.vim<CR>
+map <leader>cr :source ~/.config/nvim/init.vim<CR>
+map <leader>wss :split<CR>
+map <leader>wsv :vsplit<CR>
+map <leader>wsh :split<CR>
+map <leader>wq :q<CR>
+map <leader>wQ :q!<CR>
 
 " LSP mappings
 nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>

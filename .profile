@@ -8,10 +8,6 @@ if [ -n "$BASH_VERSION" ]; then
   fi
 fi
 
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-  tmux attach -t Base || tmux new -s Base
-fi
-
 cat /proc/sys/kernel/osrelease | grep -i --silent microsoft
 if [ $? -eq 0 ]; then
   # In WSL
@@ -27,4 +23,7 @@ if [ $? -eq 0 ]; then
 #else
   # Not in WSL
 fi
-export GPG_TTY=$(tty)
+
+# Allow ssh to use gpg as authentication client (useful for smartkey)
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export EDITOR=nvim
