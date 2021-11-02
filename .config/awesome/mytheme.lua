@@ -12,24 +12,52 @@ local themes_path = gfs.get_themes_dir()
 
 local theme = {}
 
+theme.colors = {
+    black     = "#282828",
+    red       = "#cc241d",
+    green     = "#98971a",
+    yellow    = "#d79921",
+    blue      = "#458588",
+    magenta   = "#b16386",
+    cyan      = "#689d6a",
+    white     = "#a89984",
+    bg        = "#282828",
+    fg        = "#ebdbb2",
+    bg0_h     = "#1d2021",
+    bg0       = "#282828",
+    bg1       = "#3c3836",
+    bg2       = "#504945",
+    bg3       = "#665c54",
+    bg4       = "#7c6f64",
+    gray      = "#928374",
+    orange_bg = "#d65d0e",
+    bg0_s     = "#32302f",
+    fg0       = "#fbf1c7",
+    fg1       = "#ebdbb2",
+    fg2       = "#d5c4a1",
+    fg3       = "#bdae93",
+    fg4       = "#a89984",
+    orange_fg = "#fe8019",
+}
+
 theme.font          = "Ubuntu 10"
 
-theme.bg_normal     = "#282828"
-theme.bg_focus      = "#3c3836"
-theme.bg_urgent     = "#d65d0e"
-theme.bg_minimize   = "#1d2021"
+theme.bg_normal     = theme.colors.bg
+theme.bg_focus      = theme.colors.bg1
+theme.bg_urgent     = theme.colors.orange_bg
+theme.bg_minimize   = theme.colors.bg0_h
 theme.bg_systray    = theme.bg_normal
 
-theme.fg_normal     = "#d5c4a1"
-theme.fg_focus      = "#ebdbb2"
-theme.fg_urgent     = "#ebdbb2"
-theme.fg_minimize   = "#ebdbb2"
+theme.fg_normal     = theme.colors.fg2
+theme.fg_focus      = theme.colors.fg
+theme.fg_urgent     = theme.colors.fg
+theme.fg_minimize   = theme.colors.fg
 
 theme.useless_gap   = dpi(5)
 theme.border_width  = dpi(2)
-theme.border_normal = "#a89984"
-theme.border_focus  = "#bdae93"
-theme.border_marked = "#fe8019"
+theme.border_normal = theme.colors.bg0_s
+theme.border_focus  = theme.colors.fg3
+theme.border_marked = theme.colors.orange_fg
 
 -- There are other variable sets
 -- overriding the default one when
@@ -42,7 +70,8 @@ theme.border_marked = "#fe8019"
 -- prompt_[fg|bg|fg_cursor|bg_cursor|font]
 -- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
 -- Example:
---theme.taglist_bg_focus = "#ff0000"
+theme.taglist_bg_focus = theme.colors.fg .. "10"
+theme.bg_systray = theme.colors.bg .. "10"
 
 -- Generate taglist squares:
 local taglist_square_size = dpi(4)
@@ -72,7 +101,7 @@ theme.menu_width  = dpi(100)
 --theme.bg_widget = "#cc0000"
 theme.hotkeys_bg = theme.bg_normal
 theme.hotkeys_fg = theme.fg_focus
-theme.hotkeys_modifiers_fg = "#98971a"
+theme.hotkeys_modifiers_fg = theme.colors.green
 theme.hotkeys_font = "Ubuntu Mono 8"
 theme.hotkeys_description_font = "Ubuntu 8"
 theme.hotkeys_group_margin = dpi(10)
