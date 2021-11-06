@@ -252,8 +252,23 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+local fn_key = {}
+fn_key.volume = {}
+fn_key.volume.up = function() awful.spawn.with_shell("amixer -D pulse sset Master 5%+") end
+fn_key.volume.down = function() awful.spawn.with_shell("amixer -D pulse sset Master 5%-") end
+fn_key.volume.mute = function() awful.spawn.with_shell("amixer -D pulse sset Master toggle") end
+fn_key.brightness = {}
+fn_key.brightness.up = function() awful.spawn.with_shell("sudo light -A 10") end
+fn_key.brightness.down = function() awful.spawn.with_shell("sudo light -U 10") end
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
+    awful.key({}, "XF86AudioRaiseVolume", fn_key.volume.up),
+    awful.key({}, "XF86AudioLowerVolume", fn_key.volume.down),
+    awful.key({}, "XF86AudioMute", fn_key.volume.mute),
+    awful.key({}, "XF86MonBrightnessUp", fn_key.brightness.up),
+    awful.key({}, "XF86MonBrightnessDown", fn_key.brightness.down),
+
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description=nil, group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
