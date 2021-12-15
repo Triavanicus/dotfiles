@@ -18,7 +18,12 @@ alias binstall='bundle install && bundle binstubs --all --path .bundle/bin && rb
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
+    "$([ $? = 0 ] && echo Task Success || echo Task Failure)" \
+    "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Create alias for config files to not use home as git dir
 alias .f='/usr/bin/git --git-dir=/home/triav/.dotfiles/ --work-tree=/home/triav'
+
+# Make sudo use my environment variables by default
+alias sudoe='sudo -E'

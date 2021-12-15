@@ -27,3 +27,5 @@ fi
 # Allow ssh to use gpg as authentication client (useful for smartkey)
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 export EDITOR=nvim
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
