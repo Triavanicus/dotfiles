@@ -50,6 +50,31 @@ end
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_configuration_dir() .. "mytheme.lua")
+--local pulse = require("pulseaudio_widget")
+
+local get_icon_dirs = function(icon_theme, size)
+    local result = {}
+    local icon_dir = "/usr/share/icons/" .. icon_theme .. "/"
+    local dirs = {
+        "actions/",
+        "animations/",
+        "apps/",
+        "categories/",
+        "devices/",
+        "emblems/",
+        "mimes/",
+        "places/",
+        "status/",
+        "stock/",
+    }
+    for _, v in ipairs(dirs) do
+        table.insert(result, icon_dir .. v .. tostring(size) .. "/")
+    end
+    return result
+end
+local nconf = naughty.config
+nconf.icon_dirs = get_icon_dirs("Humanity", 48)
+nconf.icon_formats = { "png", "svg" }
 
 -- This is used later as the default terminal and editor to run.
 terminal = "alacritty"
@@ -65,22 +90,7 @@ modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
-    -- awful.layout.suit.floating,
     awful.layout.suit.tile,
-    -- awful.layout.suit.tile.left,
-    -- awful.layout.suit.tile.bottom,
-    -- awful.layout.suit.tile.top,
-    -- awful.layout.suit.fair,
-    -- awful.layout.suit.fair.horizontal,
-    -- awful.layout.suit.spiral,
-    -- awful.layout.suit.spiral.dwindle,
-    -- awful.layout.suit.max,
-    -- awful.layout.suit.max.fullscreen,
-    -- awful.layout.suit.magnifier,
-    -- awful.layout.suit.corner.nw,
-    -- awful.layout.suit.corner.ne,
-    -- awful.layout.suit.corner.sw,
-    -- awful.layout.suit.corner.se,
 }
 -- }}}
 
@@ -111,7 +121,6 @@ else
                 }
     })
 end
-
 
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
@@ -183,27 +192,35 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
+local widgets = "awesome-wm-widgets."
+--local batteryarc_widget = require(widgets .. "batteryarc-widget.batteryarc")
+local battery_widget = require(widgets .. "battery-widget.battery")
+local brightness_widget = require(widgets .. "brightness-widget.brightness")
+local volume_widget = require(widgets .. "volume-widget.volume")
+
+local systray = wibox.widget.systray()
+-- local tag_list = { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
+local tag_list = { "dev", "www", "sys", "doc", "vbox", "chat", "mus", "vid", "gfx" }
+local tag_list_size = 9
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4" }, s, awful.layout.layouts[1])
+    awful.tag(tag_list, s, awful.layout.layouts[1])
+
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
---    -- Create an imagebox widget which will contain an icon indicating which layout we're using.
---    -- We need one layoutbox per screen.
---    s.mylayoutbox = awful.widget.layoutbox(s)
---    s.mylayoutbox:buttons(gears.table.join(
---                           awful.button({ }, 1, function () awful.layout.inc( 1) end),
---                           awful.button({ }, 3, function () awful.layout.inc(-1) end),
---                           awful.button({ }, 4, function () awful.layout.inc( 1) end),
---                           awful.button({ }, 5, function () awful.layout.inc(-1) end)))
+
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
+        layout = {
+            spacing = 8,
+            layout = wibox.layout.fixed.horizontal,
+        },
         buttons = taglist_buttons
     }
 
@@ -215,13 +232,12 @@ awful.screen.connect_for_each_screen(function(s)
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, bg = beautiful.bg_normal .. "D9" })
+    s.mywibox = awful.wibar({ position = "top", screen = s, bg = beautiful.bg_normal })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
         layout = wibox.layout.stack,
         {
-            
             layout = wibox.layout.align.horizontal,
             { -- Left widgets
                 layout = wibox.layout.fixed.horizontal,
@@ -231,7 +247,23 @@ awful.screen.connect_for_each_screen(function(s)
             nil,
             { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
-                wibox.widget.systray(),
+                spacing = 8,
+                brightness_widget {
+                    font = beautiful.font,
+                },
+                volume_widget {
+                    widget_type = 'arc'
+                },
+                battery_widget {
+                    font = beautiful.font,
+                    path_to_icons = "/usr/share/icons/ubuntu-mono-dark/status/16/",
+                    timeout = 2,
+                },
+                -- batteryarc_widget {
+                --     show_current_level = true,
+                --     font = beautiful.font,
+                -- },
+                systray,
             },
         },
         {
@@ -252,6 +284,39 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+local Volume = {}
+
+function Volume:new(o)
+    o = o or {}
+    o.device = o.device or ""
+    o.step = o.step or 1
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function Volume:inc()
+    awful.spawn.with_shell("amixer -D pulse sset " .. self.device .. " " .. self.step .. "%+")
+end
+
+function Volume:dec()
+    awful.spawn.with_shell("amixer -D pulse sset " .. self.device .. " " .. self.step .. "%-")
+end
+
+function Volume:toggle()
+    awful.spawn.with_shell("amixer -D pulse sset " .. self.device .. " toggle")
+end
+
+local mic_volume = Volume:new {
+    device = "Capture",
+    step = 5,
+}
+
+-- local master_volume = Volume:new {
+--     device = "Master",
+--     step = 5,
+-- }
+
 local fn_key = {}
 fn_key.volume = {}
 fn_key.volume.up = function() awful.spawn.with_shell("amixer -D pulse sset Master 5%+") end
@@ -261,13 +326,34 @@ fn_key.brightness = {}
 fn_key.brightness.up = function() awful.spawn.with_shell("sudo light -A 10") end
 fn_key.brightness.down = function() awful.spawn.with_shell("sudo light -U 10") end
 
+local function minimize_slave_windows()
+    local tag = awful.screen.focused().selected_tag
+    for i, client in ipairs(tag:clients()) do
+        if client ~= awful.client.getmaster() then
+            client.minimized = true
+        end
+    end
+end
+
+local function unminimize_slave_windows()
+    local tag = awful.screen.focused().selected_tag
+    for _, client in ipairs(tag:clients()) do
+        client.minimized = false
+    end
+end
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    awful.key({}, "XF86AudioRaiseVolume", fn_key.volume.up),
-    awful.key({}, "XF86AudioLowerVolume", fn_key.volume.down),
-    awful.key({}, "XF86AudioMute", fn_key.volume.mute),
-    awful.key({}, "XF86MonBrightnessUp", fn_key.brightness.up),
-    awful.key({}, "XF86MonBrightnessDown", fn_key.brightness.down),
+    awful.key({}, "XF86AudioRaiseVolume", function () volume_widget:inc(5) end),
+    awful.key({}, "XF86AudioLowerVolume", function () volume_widget:dec(5) end),
+    awful.key({}, "XF86AudioMute", function () volume_widget.toggle() end),
+    awful.key({ "Shift" }, "XF86AudioRaiseVolume", function () mic_volume:inc() end),
+    awful.key({ "Shift" }, "XF86AudioLowerVolume", function () mic_volume:dec() end),
+    awful.key({ "Shift" }, "XF86AudioMute", function () mic_volume:toggle() end),
+    awful.key({}, "XF86MonBrightnessUp", function () brightness_widget:inc() end),
+    awful.key({}, "XF86MonBrightnessDown", function () brightness_widget:dec() end),
+    awful.key({modkey, "Shift"}, "f", minimize_slave_windows),
+    awful.key({modkey, "Control"}, "f", unminimize_slave_windows),
 
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description=nil, group="awesome"}),
@@ -347,10 +433,11 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Dmenu
-    awful.key({ modkey },            "space",     function ()
-        awful.spawn.with_shell("dmenu_run")
-    end,
+    awful.key({ modkey }, "space", function() awful.spawn.with_shell("dmenu_run") end,
               {description = nil, group = "launcher"}),
+
+    awful.key({modkey}, "p", function() awful.spawn.with_shell("passmenu") end,
+        {description = nil, group = "launcher"}),
 
     -- Browser
     awful.key({ modkey },            "b",     function ()
@@ -417,7 +504,7 @@ clientkeys = gears.table.join(
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
-for i = 1, 4 do
+for i = 1, tag_list_size do
     globalkeys = gears.table.join(globalkeys,
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
@@ -537,6 +624,17 @@ awful.rules.rules = {
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
+    { rule_any = { class = {"Firefox"} },
+        properties = { tag = "www" } },
+
+    { rule_any = { class = { "Pavucontrol" } },
+        properties = { tag = "sys" } },
+
+    { rule_any = { class = {"Slack"} },
+        properties = { tag = "chat" } },
+
+    { rule_any = { class = {"Spotify"} },
+        properties = { tag = "mus" } }
 }
 -- }}}
 
@@ -612,6 +710,7 @@ local command_with_shell = {
     "compton --config ~/.config/compton/compton.conf",
     "nm-applet --indicator",
     "feh --bg-fill --randomize ~/Wallpapers/*",
+    "slack",
 }
 
 for _, command in ipairs(command_with_shell) do

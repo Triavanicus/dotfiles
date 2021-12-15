@@ -70,8 +70,9 @@ theme.border_marked = theme.colors.orange_fg
 -- prompt_[fg|bg|fg_cursor|bg_cursor|font]
 -- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
 -- Example:
-theme.taglist_bg_focus = theme.colors.fg .. "10"
-theme.bg_systray = theme.colors.bg .. "10"
+theme.taglist_bg_focus = theme.colors.bg1
+theme.bg_systray = theme.colors.bg
+theme.systray_icon_spacing = 8
 
 -- Generate taglist squares:
 local taglist_square_size = dpi(4)
